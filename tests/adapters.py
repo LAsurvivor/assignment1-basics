@@ -13,6 +13,7 @@ from cs336_basics.adamw import AdamW
 from cs336_basics.bpe_tokenizer import train_bpe, Tokenizer
 from cs336_basics.cross_entropy import cross_entropy
 from cs336_basics.embedding import Embedding
+from cs336_basics.learning_rate_schedule import lr_cosine_schedule
 from cs336_basics.linear import Linear
 from cs336_basics.multihead_self_attention import MultiHeadSelfAttention
 from cs336_basics.positionwise_feedforward import PositionwiseFeedForward
@@ -176,12 +177,14 @@ def run_multihead_self_attention(
         d_model=d_model,
         num_heads=num_heads,
     )
-    multi_head_self_attention.load_state_dict({
-        "q_proj.weight": q_proj_weight,
-        "k_proj.weight": k_proj_weight,
-        "v_proj.weight": v_proj_weight,
-        "output_proj.weight": o_proj_weight,
-    })
+    multi_head_self_attention.load_state_dict(
+        {
+            "q_proj.weight": q_proj_weight,
+            "k_proj.weight": k_proj_weight,
+            "v_proj.weight": v_proj_weight,
+            "output_proj.weight": o_proj_weight,
+        }
+    )
     return multi_head_self_attention.forward(in_features)
 
 
@@ -228,12 +231,14 @@ def run_multihead_self_attention_with_rope(
         max_seq_len=max_seq_len,
         theta=theta,
     )
-    multi_head_self_attention.load_state_dict({
-        "q_proj.weight": q_proj_weight,
-        "k_proj.weight": k_proj_weight,
-        "v_proj.weight": v_proj_weight,
-        "output_proj.weight": o_proj_weight,
-    })
+    multi_head_self_attention.load_state_dict(
+        {
+            "q_proj.weight": q_proj_weight,
+            "k_proj.weight": k_proj_weight,
+            "v_proj.weight": v_proj_weight,
+            "output_proj.weight": o_proj_weight,
+        }
+    )
     return multi_head_self_attention.forward(in_features, token_positions)
 
 
@@ -583,7 +588,9 @@ def run_get_lr_cosine_schedule(
     Returns:
         Learning rate at the given iteration under the specified schedule.
     """
-    raise NotImplementedError
+    return lr_cosine_schedule(
+        it, max_learning_rate, min_learning_rate, warmup_iters, cosine_cycle_iters
+    )
 
 
 def run_save_checkpoint(
