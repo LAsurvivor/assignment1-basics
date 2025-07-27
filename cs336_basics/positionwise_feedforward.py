@@ -1,7 +1,6 @@
 from torch import nn
 import torch
 from .linear import Linear
-from einops import einsum
 
 
 def silu(x: torch.Tensor) -> torch.Tensor:
