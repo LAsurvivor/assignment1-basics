@@ -28,6 +28,10 @@ class RoPE(nn.Module):
         self.register_buffer("sin_vals", sin_vals, persistent=False)
 
     def forward(self, x: torch.Tensor, token_positions: torch.Tensor) -> torch.Tensor:
+        seq_len = x.size(-2)
+        if token_positions is None:
+            token_positions = torch.arange(seq_len, device=x.device)
+        
         sin = self.sin_vals[token_positions]
         cos = self.cos_vals[token_positions]
 

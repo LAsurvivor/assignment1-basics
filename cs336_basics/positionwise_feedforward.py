@@ -7,7 +7,7 @@ def silu(x: torch.Tensor) -> torch.Tensor:
     return x * torch.sigmoid(x)
 
 
-class SwiGLU(nn.Module):
+class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model: int, d_ff: int = None, device=None, dtype=None) -> None:
         super().__init__()
         self.d_model = d_model

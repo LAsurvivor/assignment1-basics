@@ -13,11 +13,12 @@ from cs336_basics.bpe_tokenizer import train_bpe, Tokenizer
 from cs336_basics.embedding import Embedding
 from cs336_basics.linear import Linear
 from cs336_basics.multihead_self_attention import MultiHeadSelfAttention
-from cs336_basics.positionwise_feedforward import SwiGLU
+from cs336_basics.positionwise_feedforward import PositionwiseFeedForward
 from cs336_basics.rmsnorm import RMSNorm
 from cs336_basics.rope import RoPE
 from cs336_basics.scaled_dot_product_attention import scaled_dot_product_attention
 from cs336_basics.softmax import softmax
+from cs336_basics.transformer_block import TransformerBlock
 
 
 def run_linear(
@@ -42,7 +43,7 @@ def run_linear(
         in_features=d_in,
         out_features=d_out,
     )
-    linear.load_state_dict({"W": weights})
+    linear.load_state_dict({"weight": weights})
     return linear.forward(in_features)
 
 
@@ -69,7 +70,7 @@ def run_embedding(
         num_embeddings=vocab_size,
         embedding_dim=d_model,
     )
-    embedding.load_state_dict({"W": weights})
+    embedding.load_state_dict({"weight": weights})
     return embedding.forward(token_ids)
 
 
@@ -102,7 +103,7 @@ def run_swiglu(
     # swiglu.w1.weight.data = w1_weight
     # swiglu.w2.weight.data = w2_weight
     # swiglu.w3.weight.data = w3_weight
-    swiglu = SwiGLU(
+    swiglu = PositionwiseFeedForward(
         d_model=d_model,
         d_ff=d_ff,
     )
@@ -173,10 +174,10 @@ def run_multihead_self_attention(
         num_heads=num_heads,
     )
     multi_head_self_attention.load_state_dict({
-        "q_weight.weight": q_proj_weight,
-        "k_weight.weight": k_proj_weight,
-        "v_weight.weight": v_proj_weight,
-        "o_weight.weight": o_proj_weight,
+        "q_proj.weight": q_proj_weight,
+        "k_proj.weight": k_proj_weight,
+        "v_proj.weight": v_proj_weight,
+        "output_proj.weight": o_proj_weight,
     })
     return multi_head_self_attention.forward(in_features)
 
@@ -223,15 +224,14 @@ def run_multihead_self_attention_with_rope(
         num_heads=num_heads,
         max_seq_len=max_seq_len,
         theta=theta,
-        token_positions=token_positions,
     )
     multi_head_self_attention.load_state_dict({
-        "q_weight.weight": q_proj_weight,
-        "k_weight.weight": k_proj_weight,
-        "v_weight.weight": v_proj_weight,
-        "o_weight.weight": o_proj_weight,
+        "q_proj.weight": q_proj_weight,
+        "k_proj.weight": k_proj_weight,
+        "v_proj.weight": v_proj_weight,
+        "output_proj.weight": o_proj_weight,
     })
-    return multi_head_self_attention.forward(in_features)
+    return multi_head_self_attention.forward(in_features, token_positions)
 
 
 def run_rope(
@@ -331,7 +331,15 @@ def run_transformer_block(
         Float[Tensor, "batch sequence_length d_model"] Tensor with the output of
         running the Transformer block on the input features while using RoPE.
     """
-    raise NotImplementedError
+    transformer_block = TransformerBlock(
+        d_model=d_model,
+        num_heads=num_heads,
+        d_ff=d_ff,
+        max_seq_len=max_seq_len,
+        theta=theta,
+    )
+    transformer_block.load_state_dict(weights)
+    return transformer_block.forward(in_features)
 
 
 def run_transformer_lm(
@@ -441,7 +449,7 @@ def run_rmsnorm(
         eps=eps,
     )
 
-    rmsnorm.load_state_dict({"g": weights})
+    rmsnorm.load_state_dict({"weight": weights})
     return rmsnorm.forward(in_features)
 
 
