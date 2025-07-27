@@ -12,12 +12,12 @@ class Embedding(nn.Module):
         dtype: torch.dtype = None,
     ) -> None:
         super().__init__()
-        self.W = torch.empty(num_embeddings, embedding_dim, device=device, dtype=dtype)
+        self.weight = torch.empty(num_embeddings, embedding_dim, device=device, dtype=dtype)
         
         nn.init.trunc_normal_(
-            self.W, mean=0.0, std=1, a=-3, b=3
+            self.weight, mean=0.0, std=1, a=-3, b=3
         )
-        self.W = nn.Parameter(self.W)
+        self.weight = nn.Parameter(self.weight)
 
     def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
-        return self.W[token_ids]
+        return self.weight[token_ids]
