@@ -10,14 +10,14 @@ def apply_rot(
 
 
 class RoPE(nn.Module):
-    def __init__(self, theta: float, d_k: int, max_seq_len: int, device=None) -> None:
+    def __init__(self, theta: float, d_k: int, max_seq_len: int, device=None, dtype=None) -> None:
         super().__init__()
 
         inv_freq = 1.0 / (
             theta ** (torch.arange(0, d_k, 2, device=device).float() / d_k)
         )  # (d_k // 2,)
         positions = torch.arange(
-            0, max_seq_len, dtype=float, device=device
+            0, max_seq_len, dtype=dtype, device=device
         )  # (seq_len,)
         sinusoid_inp = torch.outer(positions, inv_freq)  # （seq_len, d_k // 2)
 
